@@ -14,10 +14,6 @@ beurt = 1  # 1 voor Team 1, 2 voor Team 2
 team1_score = {"groene_ballen": 0, "rode_ballen": 0, "goed_geraden": 0, "fout_ballen": 0}
 team2_score = {"groene_ballen": 0, "rode_ballen": 0, "goed_geraden": 0, "fout_ballen": 0}
 
-# Bingo-kaarten voor elk team
-bingo_kaart_team1 = [[None for _ in range(4)] for _ in range(4)]
-bingo_kaart_team2 = [[None for _ in range(4)] for _ in range(4)]
-
 # Ballenbak
 ballenbak = ["groen"] * 3 + ["rood"] * 3 + [str(i) for i in range(1, 21)]  # 3 groene, 3 rode, 20 nummers
 
@@ -61,25 +57,44 @@ def grabbel_bal():
     ballenbak.remove(bal)  # Verwijder de bal uit de ballenbak
     return bal
 
-def update_bingo_kaart(team, bal):
+# Bingo-kaarten vullen met 16 unieke nummers uit 1 t/m 20 per team
+def maak_bingo_kaart():
+    nummers = random.sample(range(1, 21), 16)
+    kaart = []
+    for i in range(4):
+        rij = [str(nummers[i*4 + j]) for j in range(4)]
+        kaart.append(rij)
+    return kaart
+
+bingo_kaart_team1 = maak_bingo_kaart()
+bingo_kaart_team2 = maak_bingo_kaart()
+
+def toon_bingo_kaart(team):
     kaart = bingo_kaart_team1 if team == team1 else bingo_kaart_team2
-    vrije_cellen = [(rij, kolom) for rij in range(4) for kolom in range(4) if kaart[rij][kolom] is None]
-    if vrije_cellen:
-        rij, kolom = random.choice(vrije_cellen)
-        kaart[rij][kolom] = bal
+    print(f"\nBingo-kaart voor {team}:")
+    for rij in kaart:
+        print(" | ".join(f"{cell:>2}" for cell in rij))
+
+def markeer_getal_op_kaart(team, getal):
+    kaart = bingo_kaart_team1 if team == team1 else bingo_kaart_team2
+    getal_str = str(getal)
+    for rij in range(4):
+        for kolom in range(4):
+            if kaart[rij][kolom] == getal_str:
+                kaart[rij][kolom] = "X"
 
 def check_bingo(team):
     kaart = bingo_kaart_team1 if team == team1 else bingo_kaart_team2
     # Controleer rijen
     for rij in kaart:
-        if all(cell is not None for cell in rij):
+        if all(cell == "X" for cell in rij):
             return True
     # Controleer kolommen
     for kolom in range(4):
-        if all(kaart[rij][kolom] is not None for rij in range(4)):
+        if all(kaart[rij][kolom] == "X" for rij in range(4)):
             return True
     # Controleer diagonalen
-    if all(kaart[i][i] is not None for i in range(4)) or all(kaart[i][3 - i] is not None for i in range(4)):
+    if all(kaart[i][i] == "X" for i in range(4)) or all(kaart[i][3 - i] == "X" for i in range(4)):
         return True
     return False
 
@@ -103,12 +118,6 @@ def check_verlies_voorwaarden(team, score):
         print(Fore.RED + f"{team} heeft 3 woorden op rij fout geraden en verliest het spel!")
         return True
     return False
-
-def toon_bingo_kaart(team):
-    kaart = bingo_kaart_team1 if team == team1 else bingo_kaart_team2
-    print(f"\nBingo-kaart voor {team}:")
-    for rij in kaart:
-        print(" | ".join(cell if cell is not None else " " for cell in rij))
 
 while game_running:
     ronde += 1
@@ -147,8 +156,8 @@ while game_running:
                     huidig_score["rode_ballen"] += 1
                     print(Fore.RED + f"{huidig_team} heeft een {bal} bal getrokken.")
                 else:
-                    update_bingo_kaart(huidig_team, bal)
                     print(f"{huidig_team} heeft een {bal} bal getrokken.")
+                    markeer_getal_op_kaart(huidig_team, bal)
 
             # Toon bingo-kaart
             toon_bingo_kaart(huidig_team)

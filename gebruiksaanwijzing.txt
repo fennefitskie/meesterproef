@@ -1,0 +1,47 @@
+📖 Gebruiksaanwijzing
+Doel:
+Het doel is om als team woorden te raden en te winnen door:
+
+3 groene ballen te trekken
+
+een bingo-lijn te krijgen
+
+10 woorden correct te raden
+Een team verliest bij:
+
+3 rode ballen
+
+3 fout geraden woorden op rij
+
+Voorbereiding:
+Zorg voor een woordenlijst (lingowords.py)
+
+Start het spel in de terminal
+
+Geef de teamnamen op
+
+Spelverloop:
+Het spel begint met ronde 1.
+
+Het actieve team krijgt de eerste letter van een woord.
+
+Het team krijgt maximaal 5 pogingen om een woord van 5 letters te raden.
+
+Correct geraden?
+
+Trek 2 ballen: groen (voordeel), rood (nadeel), getallen (voor de bingo-kaart).
+
+Bingo-kaart wordt automatisch bijgewerkt.
+
+Controle op winst/verlies.
+
+Niet goed geraden?
+
+Letterkleuren tonen hint (groen/geel).
+
+Na 5 pogingen telt het als een fout.
+
+Einde spel:
+Als een team wint/verliest volgens de voorwaarden.
+
+Of als de ballenbak leeg is.

@@ -1,50 +1,32 @@
-BEGIN LingoSpel
+START
+Vraag teamnamen op
+Initialiseer scores, bingo-kaarten, ballenbak
 
-    INITIALISEER woordenlijst
-    INITIALISEER bingoKaart voor elk team (4x4)
-    INITIALISEER ballenbak met even, oneven, groene en rode ballen
-    
-    WHILE spelNietBeëindigd DO
-        KIES willekeurig een woord uit de woordenlijst
-        TOON eerste letter van het woord
-        
-        INITIALISEER pogingen = 0
-        INITIALISEER correctGeraden = FALSE
-        
-        WHILE pogingen < 5 AND NOT correctGeraden DO
-            SPELER doet een gok
-            CONTROLEER letters:
-                - Groene letters: juiste plaats
-                - Gele letters: verkeerde plaats, maar in woord
-            TOON feedback aan speler
-            
-            IF woord correct geraden THEN
-                correctGeraden = TRUE
-                SPELER grabbelt in ballenbak (2x tenzij rode bal bij eerste keer)
-                UPDATE bingoKaart indien nummerbal getrokken
-                
-                CHECK wincondities:
-                    - 3 groene ballen → WIN
-                    - Lijn op bingoKaart → WIN
-                    - 10 woorden correct → WIN
+WHILE game_running IS True
+    ronde += 1
+    Selecteer willekeurig woord
+    Toon eerste letter
 
-            ELSE
-                pogingen = pogingen + 1
+    huidig_team = team1 OF team2 (afhankelijk van beurt)
 
-        END WHILE
-        
-        IF 3 woorden fout op rij THEN
-            TEAM verliest → SPEL EINDIGT
-            
-        IF 3 rode ballen getrokken THEN
-            TEAM verliest → SPEL EINDIGT
+    FOR poging FROM 1 TO 5
+        Vraag invoer van 5-letterwoord
+        IF woord == correct_woord:
+            Print succesbericht
+            Update score, reset fout_ballen
+            Trek 2 ballen en update kaart
+            Controleer op winst/verlies
+            Wissel beurt
+            BREAK
+        ELSE
+            Toon gekleurde hint
 
-    END WHILE
+    IF woord NIET geraden:
+        Print mislukking
+        Verhoog fout_ballen
+        Controleer op verlies
+        Wissel beurt
 
-    VRAAG speler of ze opnieuw willen spelen
-    IF JA THEN
-        HERSTART spel
-    ELSE
-        EINDE spel
-
-END LingoSpel
+EINDE WHILE
+Print "Bedankt voor het spelen"
+END
