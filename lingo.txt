@@ -1,32 +1,15 @@
 START
-Vraag teamnamen op
-Initialiseer scores, bingo-kaarten, ballenbak
-
-WHILE game_running IS True
-    ronde += 1
-    Selecteer willekeurig woord
-    Toon eerste letter
-
-    huidig_team = team1 OF team2 (afhankelijk van beurt)
-
-    FOR poging FROM 1 TO 5
-        Vraag invoer van 5-letterwoord
-        IF woord == correct_woord:
-            Print succesbericht
-            Update score, reset fout_ballen
-            Trek 2 ballen en update kaart
-            Controleer op winst/verlies
-            Wissel beurt
-            BREAK
-        ELSE
-            Toon gekleurde hint
-
-    IF woord NIET geraden:
-        Print mislukking
-        Verhoog fout_ballen
-        Controleer op verlies
-        Wissel beurt
-
-EINDE WHILE
-Print "Bedankt voor het spelen"
-END
+→ Initialiseer spel: variabelen, score, ballenbak
+→ Toon uitleg
+→ WHILE spel loopt:
+    → Kies willekeurig een woord
+    → Voor elke teambeurt:
+        → Laat speler raden
+        → Geef feedback op letters (groen, geel, wit)
+        → Als woord goed:
+            → Trek bal
+            → Update score
+            → Check op BINGO
+            → Indien gewonnen: vraag om opnieuw te spelen
+        → Anders: volgende beurt of wissel team
+→ EINDE
