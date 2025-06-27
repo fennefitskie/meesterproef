@@ -1,5 +1,5 @@
 import random
-from colorama import Fore, init
+from colorama import Fore, Style, init
 from lingowords import words
 
 init(autoreset=True)
@@ -41,23 +41,26 @@ def maak_bingo_kaart():
     nummers = random.sample(range(1, 21), 16)
     kaart = []
     for i in range(4):
-        rij = [str(nummers[i*4 + j]) for j in range(4)]
+        rij = [str(nummers[i * 4 + j]) for j in range(4)]
         kaart.append(rij)
     return kaart
 
-def toon_bingo_kaart(team, kaart):
+def toon_bingo_kaart(team):
+    kaart = bingo_kaart_team1 if team == team1 else bingo_kaart_team2
     print(f"\nBingo-kaart voor {team}:")
     for rij in kaart:
         print(" | ".join(f"{cell:>2}" for cell in rij))
 
-def markeer_getal_op_kaart(kaart, getal):
+def markeer_getal_op_kaart(team, getal):
+    kaart = bingo_kaart_team1 if team == team1 else bingo_kaart_team2
     getal_str = str(getal)
     for rij in range(4):
         for kolom in range(4):
             if kaart[rij][kolom] == getal_str:
                 kaart[rij][kolom] = "X"
 
-def check_bingo(kaart):
+def check_bingo(team):
+    kaart = bingo_kaart_team1 if team == team1 else bingo_kaart_team2
     for rij in kaart:
         if all(cell == "X" for cell in rij):
             return True
@@ -68,11 +71,11 @@ def check_bingo(kaart):
         return True
     return False
 
-def check_win_voorwaarden(team, score, kaart):
+def check_win_voorwaarden(team, score):
     if score["groene_ballen"] >= 3:
         print(Fore.GREEN + f"{team} heeft 3 groene ballen getrokken en wint het spel!")
         return True
-    if check_bingo(kaart):
+    if check_bingo(team):
         print(Fore.GREEN + f"{team} heeft een lijn op de bingo-kaart en wint het spel!")
         return True
     if score["goed_geraden"] >= 10:
@@ -89,41 +92,26 @@ def check_verlies_voorwaarden(team, score):
         return True
     return False
 
-def verwerk_bal(team, score, kaart):
-    bal = grabbel_bal()
-    if bal is None:
-        return False
-    if bal == "groen":
-        score["groene_ballen"] += 1
-        print(Fore.GREEN + f"{team} heeft een groene bal getrokken.")
-        return "groen"
-    elif bal == "rood":
-        score["rode_ballen"] += 1
-        print(Fore.RED + f"{team} heeft een rode bal getrokken.")
-        return "rood"
-    else:
-        print(f"{team} heeft een {bal} bal getrokken.")
-        markeer_getal_op_kaart(kaart, bal)
-        return "getal"
-
 def start_spel():
-    global ballenbak
-    ballenbak = ["groen"] * 3 + ["rood"] * 3 + [str(i) for i in range(1, 21)]
-
-    team1_score = {"groene_ballen": 0, "rode_ballen": 0, "goed_geraden": 0, "fout_ballen": 0}
-    team2_score = {"groene_ballen": 0, "rode_ballen": 0, "goed_geraden": 0, "fout_ballen": 0}
-
-    print('Welkom bij Lingo')
+    global team1, team2, ballenbak, bingo_kaart_team1, bingo_kaart_team2
     team1 = input('Hallo Team 1, wat is jullie teamnaam? ').lower()
     team2 = input('Hallo Team 2, wat is jullie teamnaam? ').lower()
 
-    kaart1 = maak_bingo_kaart()
-    kaart2 = maak_bingo_kaart()
+    team1_score = {"groene_ballen": 0, "rode_ballen": 0, "goed_geraden": 0, "fout_ballen": 0}
+    team2_score = {"groene_ballen": 0, "rode_ballen": 0, "goed_geraden": 0, "fout_ballen": 0}
+    ballenbak = ["groen"] * 3 + ["rood"] * 3 + [str(i) for i in range(1, 21)]
+    bingo_kaart_team1 = maak_bingo_kaart()
+    bingo_kaart_team2 = maak_bingo_kaart()
 
-    beurt = 1
     ronde = 0
+    beurt = 1
+    game_running = True
 
-    while True:
+    while game_running:
+        if not ballenbak:
+            print(Fore.RED + "De ballenbak is leeg! Het spel is afgelopen.")
+            break
+
         ronde += 1
         woord = random.choice(words)
         split_word = woord_splitter(woord)
@@ -133,7 +121,6 @@ def start_spel():
 
         huidig_team = team1 if beurt == 1 else team2
         huidig_score = team1_score if beurt == 1 else team2_score
-        huidig_kaart = kaart1 if beurt == 1 else kaart2
 
         for poging in range(5):
             while True:
@@ -148,24 +135,48 @@ def start_spel():
                 huidig_score["goed_geraden"] += 1
                 huidig_score["fout_ballen"] = 0
 
-                resultaat1 = verwerk_bal(huidig_team, huidig_score, huidig_kaart)
-                if resultaat1 is None:
-                    return
-                if resultaat1 == "rood":
-                    toon_bingo_kaart(huidig_team, huidig_kaart)
-                    if check_win_voorwaarden(huidig_team, huidig_score, huidig_kaart) or check_verlies_voorwaarden(huidig_team, huidig_score):
-                        return
-                    beurt = 2 if beurt == 1 else 1
+                getrokken_ballen = []
+
+                bal1 = grabbel_bal()
+                if not bal1:
+                    game_running = False
                     break
+                getrokken_ballen.append(bal1)
 
-                resultaat2 = verwerk_bal(huidig_team, huidig_score, huidig_kaart)
-                if resultaat2 is None:
-                    return
+                if bal1 == "groen":
+                    huidig_score["groene_ballen"] += 1
+                    print(Fore.GREEN + f"{huidig_team} heeft een groene bal getrokken.")
+                elif bal1 == "rood":
+                    huidig_score["rode_ballen"] += 1
+                    print(Fore.RED + f"{huidig_team} heeft een rode bal getrokken.")
+                else:
+                    print(f"{huidig_team} heeft een {bal1} bal getrokken.")
+                    markeer_getal_op_kaart(huidig_team, bal1)
 
-                toon_bingo_kaart(huidig_team, huidig_kaart)
-                if check_win_voorwaarden(huidig_team, huidig_score, huidig_kaart) or check_verlies_voorwaarden(huidig_team, huidig_score):
-                    return
-                beurt = 2 if beurt == 1 else 1
+                if bal1 != "rood" and ballenbak:
+                    bal2 = grabbel_bal()
+                    if not bal2:
+                        game_running = False
+                        break
+                    getrokken_ballen.append(bal2)
+
+                    if bal2 == "groen":
+                        huidig_score["groene_ballen"] += 1
+                        print(Fore.GREEN + f"{huidig_team} heeft een groene bal getrokken.")
+                    elif bal2 == "rood":
+                        huidig_score["rode_ballen"] += 1
+                        print(Fore.RED + f"{huidig_team} heeft een rode bal getrokken.")
+                    else:
+                        print(f"{huidig_team} heeft een {bal2} bal getrokken.")
+                        markeer_getal_op_kaart(huidig_team, bal2)
+
+                # Kaart pas tonen na alle ballen
+                toon_bingo_kaart(huidig_team)
+
+                if check_win_voorwaarden(huidig_team, huidig_score) or check_verlies_voorwaarden(huidig_team, huidig_score):
+                    game_running = False
+                else:
+                    beurt = 2 if beurt == 1 else 1
                 break
             else:
                 print(kleur_letters(raden, woord))
@@ -173,12 +184,20 @@ def start_spel():
             print(Fore.RED + 'Helaas, je hebt het woord niet geraden.')
             huidig_score["fout_ballen"] += 1
             if check_verlies_voorwaarden(huidig_team, huidig_score):
-                return
+                game_running = False
             beurt = 2 if beurt == 1 else 1
 
-while True:
-    start_spel()
-    opnieuw = input("Wil je opnieuw spelen? (ja/nee): ").lower()
-    if opnieuw != "ja":
-        print("Bedankt voor het spelen!")
-        break
+    while True:
+        opnieuw = input("Wil je opnieuw spelen? (ja/nee): ").lower()
+        if opnieuw == "ja":
+            start_spel()
+            break
+        elif opnieuw == "nee":
+            print("Tot de volgende keer!")
+            break
+        else:
+            print("Ongeldige invoer. Typ 'ja' of 'nee'.")
+
+# Start het spel
+print('Welkom bij Lingo')
+start_spel()
