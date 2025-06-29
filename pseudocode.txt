@@ -1,0 +1,32 @@
+1. Vraag namen van beide teams op.
+
+2. Initialisatie:
+   - Zet scores op 0
+   - Maak ballenbak met 3 groene, 3 rode en getallen 1 t/m 20
+   - Maak voor elk team een bingo-kaart
+   - Zet beurt op 0
+
+3. Spelloop:
+   - Zolang het spel actief is en ballenbak niet leeg:
+     a. Kies een willekeurig woord
+     b. Toon eerste letter aan het team
+     c. Laat het team het woord raden (max 5 keer):
+        - Als correct:
+            - Verhoog score
+            - Reset foute pogingen
+            - Trek 1 of 2 ballen
+                - Verwerk bal (kleur of getal)
+                - Markeer getallen op de kaart
+            - Toon de kaart
+            - Controleer op winst
+        - Als fout:
+            - Geef gekleurde feedback per letter
+     d. Als na 5 pogingen niet goed:
+        - Verhoog foute pogingen
+        - Controleer op verlies
+     e. Wissel van team
+
+4. Einde:
+   - Vraag of spelers opnieuw willen spelen
+   - Ja: herstart spel
+   - Nee: sluit spel af
